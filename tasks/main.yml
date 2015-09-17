@@ -1,0 +1,8 @@
+---
+# This task builds the custom task file used to deploy the appliance(s)
+- name: Calling the create_new_task_main task
+  include: create_new_task_main.yml
+
+# Deploy the appliance(s)
+- name: Calling the deploy_ovf tasks
+  include: deploy_via_ovftool_main.yml
