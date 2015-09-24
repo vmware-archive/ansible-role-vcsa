@@ -1,4 +1,5 @@
 ---
 # The appliance_deployment_scheme and appliance_networking_mode and psc_appliance_ip_address/psc_appliance_dns_name values should come from the GUI or CLI call
+deploy_ovf_role_path: "/opt/supervio-ansible/roles/vcsa"
 the_one_task_template: "../templates/the_one.yml.j2"
 the_one_task: "{{ deploy_ovf_role_path }}/tasks/{{ appliance_deployment_scheme }}_{{ appliance_networking_mode }}.yml"

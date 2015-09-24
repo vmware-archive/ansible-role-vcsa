@@ -10,7 +10,6 @@
     vm_name: "{{ vcsa_appliance_vcenter_name }}"
   when: appliance_deployment_scheme == "combined"
   register: combined_appliance_exists
-  tags: combined_psc_vcsa
 
 # Using the does_vm_exist custom module verify that the dedicated PSC appliance name in
 #  vCenter
@@ -21,9 +20,8 @@
     vcenter_password: "{{ vcenter_password }}"
     vcenter_port: "{{ vcenter_port }}"
     vm_name: "{{ psc_appliance_vcenter_name }}"
-  when: appliance_deployment_scheme == "dedicated"
+  when: appliance_deployment_scheme == "psc"
   register: psc_appliance_exists_combined
-  tags: dedicated_psc
 
 # Using the does_vm_exist custom module verify that the dedicated vCSA appliance name in
 #  vCenter
@@ -34,6 +32,5 @@
     vcenter_password: "{{ vcenter_password }}"
     vcenter_port: "{{ vcenter_port }}"
     vm_name: "{{ vcsa_appliance_vcenter_name }}"
-  when: appliance_deployment_scheme == "dedicated"
+  when: appliance_deployment_scheme == "vcsa"
   register: vcsa_appliance_exists_combined
-  tags:

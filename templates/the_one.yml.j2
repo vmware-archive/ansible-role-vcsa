@@ -33,11 +33,11 @@
     --prop:guestinfo.cis.appliance.ssh.enabled='{{ ssh_enable }}'
     --prop:guestinfo.cis.appliance.time.tools-sync='{{ time_tools_sync }}'
     --prop:guestinfo.cis.appliance.net.addr.family='{{ ip_family }}'
-{% if (appliance_deployment_scheme == "combined" or appliance_deployment_scheme == "vcsa") and appliance_networking_mode == "dhcp" %}
+{% if (appliance_deployment_scheme == "combined" or appliance_deployment_scheme == "vcsa") and appliance_networking_mode == "DHCP" %}
     --name='{{ vcsa_appliance_vcenter_name }}'
     "--prop:guestinfo.cis.appliance.root.passwd={{ '{{ vcsa_appliance_root_password }}' }}"
     --prop:guestinfo.cis.appliance.net.mode=dhcp
-{% elif (appliance_deployment_scheme == "combined" or appliance_deployment_scheme == "vcsa") and appliance_networking_mode == "static" %}
+{% elif (appliance_deployment_scheme == "combined" or appliance_deployment_scheme == "vcsa") and appliance_networking_mode == "Static" %}
     --name='{{ vcsa_appliance_vcenter_name }}'
     --prop:guestinfo.cis.appliance.net.pnid='{{ vcsa_appliance_dns_name }}'
     "--prop:guestinfo.cis.appliance.root.passwd={{ '{{ vcsa_appliance_root_password }}' }}"
@@ -46,13 +46,13 @@
     --prop:guestinfo.cis.appliance.net.prefix='{{ vcsa_appliance_ip_prefix }}'
     --prop:guestinfo.cis.appliance.net.gateway='{{ vcsa_appliance_ip_gw }}'
     --prop:guestinfo.cis.appliance.net.dns.servers='{{ vcsa_appliance_dns_servers }}'
-{% elif appliance_deployment_scheme == "psc" and appliance_networking_mode == "dhcp" %}
+{% elif appliance_deployment_scheme == "psc" and appliance_networking_mode == "DHCP" %}
     --name='{{ psc_appliance_vcenter_name }}'
     --prop:guestinfo.cis.appliance.root.passwd={{ '{{ psc_appliance_root_password }}' }}
     --deploymentOption=infrastructure
     --prop:guestinfo.cis.vmdir.first-instance=true
     --prop:guestinfo.cis.appliance.net.mode=dhcp
-{% elif appliance_deployment_scheme == "psc" and appliance_networking_mode == "static" %}
+{% elif appliance_deployment_scheme == "psc" and appliance_networking_mode == "Static" %}
     --name='{{ psc_appliance_vcenter_name }}'
     --prop:guestinfo.cis.appliance.net.pnid='{{ psc_appliance_dns_name }}'
     "--prop:guestinfo.cis.appliance.root.passwd={{ '{{ psc_appliance_root_password }}' }}"
@@ -64,14 +64,14 @@
     --prop:guestinfo.cis.appliance.net.gateway='{{ psc_appliance_ip_gw }}'
     --prop:guestinfo.cis.appliance.net.dns.servers='{{ psc_appliance_dns_servers }}'
 {% endif %}
-{% if appliance_deployment_scheme == "combined" and appliance_networking_mode == "dhcp" %}
+{% if appliance_deployment_scheme == "combined" and appliance_networking_mode == "DHCP" %}
     --deploymentOption='{{ appliance_deployment_option }}'
-{% elif appliance_deployment_scheme == "combined" and appliance_networking_mode == "static" %}
+{% elif appliance_deployment_scheme == "combined" and appliance_networking_mode == "Static" %}
     --deploymentOption='{{ appliance_deployment_option }}'
-{% elif appliance_deployment_scheme == "vcsa" and appliance_networking_mode == "dhcp" %}
+{% elif appliance_deployment_scheme == "vcsa" and appliance_networking_mode == "DHCP" %}
     '--prop:guestinfo.cis.system.vm0.hostname={{ platform_service_controller }}'
     --deploymentOption='management-{{ appliance_deployment_option }}'
-{% elif appliance_deployment_scheme == "vcsa" and appliance_networking_mode == "static" %}
+{% elif appliance_deployment_scheme == "vcsa" and appliance_networking_mode == "Static" %}
     --prop:guestinfo.cis.system.vm0.hostname='{{ platform_service_controller }}'
     --deploymentOption='management-{{ appliance_deployment_option }}'
 {% endif %}

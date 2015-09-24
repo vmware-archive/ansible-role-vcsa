@@ -2,7 +2,7 @@
 # Runs a task that calls a custom module to checks if there are existing VMs using the same
 #  name
 - name: Verify that the vCSA/PSC appliance(s) do not exist
-  tags: prereqs
+  tags: existing_vm_verification
   include: does_vm_exist.yml
 
 # We use a single directory to mount the vCSA ISO and we first need to determine whether the
@@ -49,21 +49,20 @@
   tags: debug
   debug: msg="Deploying {{ appliance_deployment_scheme }} appliance(s) using {{ appliance_networking_mode }}"
 
-- name: Set the generic facts when appliance_deployment_scheme is combined or vcsa
-  when: appliance_deployment_scheme == "combined" or appliance_deployment_scheme == "vcsa"
+- name: Set the generic facts when appliance_deployment_scheme is Combined or vCSA
   tags:
     - combined
     - vcsa
-    - cleanup
+    - cleanup_combined
+    - cleanup_vcsa
   set_fact:
       appliance_dns_name: "{{ vcsa_appliance_dns_name }}"
       appliance_vcenter_name: "{{ vcsa_appliance_vcenter_name }}"
 
 - name: Set the generic facts when appliance_deployment_scheme is psc
-  when: appliance_deployment_scheme == "psc"
   tags:
     - psc
-    - cleanup
+    - cleanup_psc
   set_fact:
       appliance_dns_name: "{{ psc_appliance_dns_name }}"
       appliance_vcenter_name: "{{ psc_appliance_vcenter_name }}"
@@ -79,8 +78,7 @@
 
 # The failed_when statement above should catch both soft failures (Monitor failed) and hard
 #  failures (return code > 1). If a failure occurs we need to cleanup the VM that is deployed
-- name: Deployment failed, destroying {{ appliance_deployment_scheme }} appliance
-  tags: cleanup
+- name: Destroying appliance
   ignore_errors: True
   vsphere_guest:
     vcenter_hostname: "{{ vcenter_host }}"
@@ -89,6 +87,10 @@
     guest: "{{ appliance_vcenter_name }}"
     state: absent
     force: yes
+  tags:
+    - cleanup_combined
+    - cleanup_psc
+    - cleanup_vcsa
 
 # Unmount the ISO
 - name: Unmount ISO
