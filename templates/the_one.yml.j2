@@ -69,10 +69,10 @@
 {% elif appliance_deployment_scheme == "combined" and appliance_networking_mode == "Static" %}
     --deploymentOption='{{ appliance_deployment_option }}'
 {% elif appliance_deployment_scheme == "vcsa" and appliance_networking_mode == "DHCP" %}
-    '--prop:guestinfo.cis.system.vm0.hostname={{ platform_service_controller }}'
+    '--prop:guestinfo.cis.system.vm0.hostname={{ psc_appliance_ip_address }}'
     --deploymentOption='management-{{ appliance_deployment_option }}'
 {% elif appliance_deployment_scheme == "vcsa" and appliance_networking_mode == "Static" %}
-    --prop:guestinfo.cis.system.vm0.hostname='{{ platform_service_controller }}'
+    --prop:guestinfo.cis.system.vm0.hostname='{{ psc_appliance_ip_address }}'
     --deploymentOption='management-{{ appliance_deployment_option }}'
 {% endif %}
     '{{ mount_dir_path }}/{{ ova }}'
