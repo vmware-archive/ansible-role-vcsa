@@ -30,7 +30,7 @@
 #  need a more intelligent one.
 - name: Mount the ISO
   tags: prereqs
-  command: /bin/mount -t iso9660 "{{ iso }}" "{{ mount_dir_path }}"
+  command: /bin/mount -t iso9660 "{{ downloads_dir }}/{{ chaperone_vcsa_iso }}" "{{ mount_dir_path }}"
   become: True
   when: mount_dir_stat_created.stat.wusr == True
 
@@ -95,7 +95,7 @@
 # Unmount the ISO
 - name: Unmount ISO
   tags: cleanup
-  mount: src="{{ iso }}" name="{{ mount_dir_path }}" fstype=iso9660 state=unmounted
+  mount: src="{{ chaperone_vcsa_iso }}" name="{{ mount_dir_path }}" fstype=iso9660 state=unmounted
   become: True
 
 # Now that the ISO is unmounted we grab the existing metadata for the mount directory. Crude

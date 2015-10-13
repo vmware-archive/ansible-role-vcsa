@@ -75,7 +75,7 @@
     '--prop:guestinfo.cis.system.vm0.hostname={{ psc_appliance_dns_name_manual }}'
     --deploymentOption='management-{{ appliance_deployment_option }}'
 {% endif %}
-    '{{ mount_dir_path }}/{{ ova }}'
+    '{{ mount_dir_path }}/{{ vcsa_ova }}'
     "vi://{{ esx_username | urlencode }}:{{ '{{ esx_password | urlencode }}' }}@{{ esx_hostname }}"
   register: deploy_ovf_cmd_result
   ignore_errors: True
