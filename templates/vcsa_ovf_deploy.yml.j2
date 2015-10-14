@@ -18,7 +18,7 @@
     --X:connectionFileTransferRetryCount=3
     "--X:monitorInstallFiles=file://{{ esx_username }}:{{ '{{ esx_password }}' }}@/var/log/firstboot/rpmInstall.json, file://{{ esx_username }}:{{ '{{ esx_password }}' }}@/var/log/firstboot/fbInstall.json"
     '--X:monitorOutputFile=/tmp/vcsa-cli-installer-progress-{{ 10000000 |random}}.json'
-    '--X:logFile=/tmp/{{ appliance_deployment_scheme }}_{{ appliance_networking_mode }}.log'
+    '--X:logFile={{ chaperone_log_dir }}/{{ appliance_deployment_scheme }}_{{ appliance_networking_mode }}.log'
     --X:logLevel=verbose
     --X:logTransferHeaderData
     --X:waitForIp

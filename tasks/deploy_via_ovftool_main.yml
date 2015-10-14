@@ -1,7 +1,7 @@
 ---
 # Runs a task that calls a custom module to checks if there are existing VMs using the same
 #  name
-- name: Verify that the vCSA/PSC appliance(s) do not exist
+- name: Verify that the appliance(s) do not exist
   tags: existing_vm_verification
   include: does_vm_exist.yml
 
@@ -43,7 +43,7 @@
 
 - name: ---> OVFTOOL LOG FILE LOCATION <----
   tags: debug
-  debug: msg="The ovftool log file is /tmp/{{ appliance_deployment_scheme }}_{{ appliance_networking_mode }}.log"
+  debug: msg="The ovftool log file is {{ chaperone_log_dir }}/{{ appliance_deployment_scheme }}_{{ appliance_networking_mode }}.log"
 
 - name: Report the appliance deployment scheme and appliance networking scheme
   tags: debug
@@ -67,18 +67,18 @@
       appliance_dns_name: "{{ psc_appliance_dns_name }}"
       appliance_vcenter_name: "{{ psc_appliance_vcenter_name }}"
 
-- name: Deploying the {{ appliance_deployment_scheme }} appliance
+- name: Deploying the appliance
   tags:
     - combined
     - psc
     - vcsa
-  include: "{{ the_one_task }}"
+  include: "{{ vcsa_ovf_deploy_task }}"
   ignore_errors: True
   wait_for: host="{{ appliance_dns_name }}" port=443 timeout=1800
 
 # The failed_when statement above should catch both soft failures (Monitor failed) and hard
 #  failures (return code > 1). If a failure occurs we need to cleanup the VM that is deployed
-- name: Destroying appliance
+- name: Destroying the appliance
   ignore_errors: True
   vsphere_guest:
     vcenter_hostname: "{{ vcenter_host }}"

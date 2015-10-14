@@ -3,7 +3,7 @@
 #  appliance_deployment_scheme and the appliance_networking_mode
 # If a PSC and vCSA are to be deployed we need to run this task twice
 - name: Create custom task to deploy the appliances
-  template: src="{{ the_one_task_template }}" dest="{{ the_one_task }}"
+  template: src="{{ vcsa_ovf_deploy_task_template }}" dest="{{ vcsa_ovf_deploy_task }}"
   tags:
     - create_combined_task
     - create_psc_task
