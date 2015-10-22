@@ -1,4 +1,4 @@
 ---
 deploy_ovf_role_path: "/opt/supervio-ansible/roles/vcsa"
 vcsa_ovf_deploy_task_template: "../templates/vcsa_ovf_deploy.yml.j2"
-vcsa_ovf_deploy_task: "{{ deploy_ovf_role_path }}/tasks/{{ appliance_deployment_scheme }}_{{ appliance_networking_mode }}.yml"
+vcsa_ovf_deploy_task: "{{ deploy_vcsa_ovf_role_path }}/tasks/{{ appliance_deployment_scheme }}_{{ appliance_networking_mode }}.yml"
