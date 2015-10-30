@@ -1,0 +1,57 @@
+#
+#  Copyright 2015 VMware, Inc.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#
+---
+# Runs a task that calls a custom module to checks if there are existing VMs using the same
+#  name
+- name: Verify that the appliance(s) do not exist
+  tags: existing_vm_verification
+  include: does_vm_exist.yml
+
+# We use a single directory to mount the vCSA ISO and we first need to determine whether the
+#  directory already exists
+- name: Retrieve info about the mount directory
+  tags: prereqs
+  stat: path="{{ mount_dir_path }}"
+  register: mount_dir_stat_first
+
+# If the mount directory doesn't already exist it is created
+- name: Create the mount directory
+  tags: prereqs
+  file: path="{{ mount_dir_path }}" state=directory mode=0755
+  when: mount_dir_stat_first.stat.exists == False
+
+# We run stat again to get info about the mount directory post-creation. This info will be used
+#  within when statements to make sure that the directory exists and isn't already being used.
+#  It's a crude check and I would like to devise a better method.
+- name: Retrieve info about the mount directory
+  tags: prereqs
+  stat: path="{{ mount_dir_path }}"
+  register: mount_dir_stat_created
+
+# Mount the vCSA ISO to the mount directory WHEN the mount directory is RO. Crude check,
+#  need a more intelligent one.
+- name: Mount the ISO
+  tags: prereqs
+  command: /bin/mount -t iso9660 "{{ downloads_dir }}/{{ chaperone_vcsa_iso }}" "{{ mount_dir_path }}"
+  become: True
+  when: mount_dir_stat_created.stat.wusr == True
+
+# Run stat for third time to retrieve the metadata on the directory
+- name: Update the info on the mounted directory
+  tags: prereqs
+  stat: path="{{ mount_dir_path }}"
+  register: mount_dir_stat_mounted
+  failed_when: mount_dir_stat_mounted.stat.wusr != False

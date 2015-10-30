@@ -1,0 +1,149 @@
+#
+#  Copyright 2015 VMware, Inc.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#
+---
+- name: ---> OVFTOOL LOG FILE LOCATION <----
+  tags: debug
+  debug: msg="The ovftool log file is {{ chaperone_log_dir }}/{{ appliance_deployment_scheme }}_{{ appliance_networking_mode }}.log"
+
+- name: Report the appliance deployment scheme and appliance networking scheme
+  tags: debug
+  debug: msg="Deploying {{ appliance_deployment_scheme }} appliance(s) using {{ appliance_networking_mode }}"
+
+- name: Set the generic facts when appliance_deployment_scheme is Combined or vCSA
+  tags:
+    - combined
+    - vcsa
+    - cleanup_combined
+    - cleanup_vcsa
+  set_fact:
+      appliance_dns_name: "{{ vcsa_appliance_dns_name }}"
+      appliance_vcenter_name: "{{ vcsa_appliance_vcenter_name }}"
+
+- name: Set the generic facts when appliance_deployment_scheme is psc
+  tags:
+    - psc
+    - cleanup_psc
+  set_fact:
+      appliance_dns_name: "{{ psc_appliance_dns_name }}"
+      appliance_vcenter_name: "{{ psc_appliance_vcenter_name }}"
+
+- name: Deploying the appliance (combined/DHCP)
+  tags:
+    - combined
+    - psc
+    - vcsa
+  include: "deploy/combined_DHCP.yml"
+  vars:
+    log_dir: "{{ chaperone_log_dir }}"
+  ignore_errors: True
+  wait_for: host="{{ appliance_dns_name }}" port=443 timeout=1800
+  when: appliance_deployment_scheme == "combined" and appliance_networking_mode == "DHCP"
+
+- name: Deploying the appliance (combined/Static)
+  tags:
+    - combined
+    - psc
+    - vcsa
+  include: "deploy/combined_Static.yml"
+  vars:
+    log_dir: "{{ chaperone_log_dir }}"
+  ignore_errors: True
+  wait_for: host="{{ appliance_dns_name }}" port=443 timeout=1800
+  when: appliance_deployment_scheme == "combined" and appliance_networking_mode == "Static"
+
+- name: Deploying the appliance (psc/DHCP)
+  tags:
+    - combined
+    - psc
+    - vcsa
+  include: "deploy/psc_DHCP.yml"
+  vars:
+    log_dir: "{{ chaperone_log_dir }}"
+  ignore_errors: True
+  wait_for: host="{{ appliance_dns_name }}" port=443 timeout=1800
+  when: appliance_deployment_scheme == "psc" and appliance_networking_mode == "DHCP"
+
+- name: Deploying the appliance (psc/Static)
+  tags:
+    - combined
+    - psc
+    - vcsa
+  include: "deploy/psc_Static.yml"
+  vars:
+    log_dir: "{{ chaperone_log_dir }}"
+  ignore_errors: True
+  wait_for: host="{{ appliance_dns_name }}" port=443 timeout=1800
+  when: appliance_deployment_scheme == "psc" and appliance_networking_mode == "Static"
+
+- name: Deploying the appliance (psc/Static)
+  tags:
+    - combined
+    - psc
+    - vcsa
+  include: "deploy/vcsa_DHCP.yml"
+  vars:
+    log_dir: "{{ chaperone_log_dir }}"
+  ignore_errors: True
+  wait_for: host="{{ appliance_dns_name }}" port=443 timeout=1800
+  when: appliance_deployment_scheme == "vcsa" and appliance_networking_mode == "DHCP"
+
+- name: Deploying the appliance (vcsa/Static)
+  tags:
+    - combined
+    - psc
+    - vcsa
+  include: "deploy/vcsa_Static.yml"
+  vars:
+    log_dir: "{{ chaperone_log_dir }}"
+  ignore_errors: True
+  wait_for: host="{{ appliance_dns_name }}" port=443 timeout=1800
+  when: appliance_deployment_scheme == "vcsa" and appliance_networking_mode == "Static"
+
+# The failed_when statement above should catch both soft failures (Monitor failed) and hard
+#  failures (return code > 1). If a failure occurs we need to cleanup the VM that is deployed
+- name: Destroying the appliance
+  ignore_errors: True
+  vsphere_guest:
+    vcenter_hostname: "{{ vcenter_host }}"
+    username: "{{ vcenter_user }}"
+    password: "{{ vcenter_password }}"
+    guest: "{{ appliance_vcenter_name }}"
+    state: absent
+    force: yes
+  tags:
+    - cleanup_combined
+    - cleanup_psc
+    - cleanup_vcsa
+
+# Unmount the ISO
+- name: Unmount ISO
+  tags: cleanup
+  mount: src="{{ chaperone_vcsa_iso }}" name="{{ mount_dir_path }}" fstype=iso9660 state=unmounted
+  become: True
+
+# Now that the ISO is unmounted we grab the existing metadata for the mount directory. Crude
+#  and needs to built with something more intelligence.
+- name: Retrieve info about the mount directory
+  tags: cleanup
+  stat: path="{{ mount_dir_path }}"
+  register: mount_dir_stat_unmounted
+
+# Destroy the mount directory
+- name: Destroy the temp mount directory
+  tags: cleanup
+  file: path="{{ mount_dir_path }}" state=absent
+  when: mount_dir_stat_unmounted.stat.wusr == True
+  become: True
