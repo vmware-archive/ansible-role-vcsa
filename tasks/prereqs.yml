@@ -14,6 +14,12 @@
 #  limitations under the License.
 #
 ---
+- name: assure dnsmasq installed
+  sudo: yet
+  apt: pkg=python-netaddr state=present
+  tags:
+    - prereqs
+
 # Runs a task that calls a custom module to checks if there are existing VMs using the same
 #  name
 - name: Verify that the appliance(s) do not exist
