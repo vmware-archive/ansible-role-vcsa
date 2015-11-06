@@ -20,6 +20,12 @@
   tags:
     - prereqs
 
+- name: Install pip modules
+  pip: name="{{ item }}" state=latest
+  with_items:
+    - pysphere
+    - pyvmomi
+
 # Runs a task that calls a custom module to checks if there are existing VMs using the same
 #  name
 - name: Verify that the appliance(s) do not exist
