@@ -15,7 +15,7 @@
 #
 ---
 - name: assure dnsmasq installed
-  sudo: yet
+  sudo: yes
   apt: pkg=python-netaddr state=present
   tags:
     - prereqs
