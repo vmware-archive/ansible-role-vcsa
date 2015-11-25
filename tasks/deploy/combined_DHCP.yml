@@ -38,7 +38,7 @@
     --prop:guestinfo.cis.appliance.net.mode=dhcp
     --deploymentOption='{{ appliance_deployment_option }}'
     '{{ mount_dir_path }}/{{ vcsa_ova }}'
-    'vi://{{ esx_username | urlencode }}:{{ esx_password | urlencode }}@{{ esx_hostname }}'
+    'vi://{{ esx_username | urlencode }}:{{ esx_password | urlencode }}@{{ esx_hostname }}/{{ esx_datacenter }}/host//{{ esx_cluster }}'
   register: deploy_ovf_cmd_result
   ignore_errors: True
   failed_when: "'Monitor failed:' in deploy_ovf_cmd_result.stdout or deploy_ovf_cmd_result.rc > 0"

@@ -25,3 +25,5 @@ ovftool: "/usr/local/bin/ovftool/ovftool"
 vcsa_ova: "vcsa/vmware-vcsa"
 mount_dir_path: "/tmp/vcsa-install"
 ovftool_http_timeout: 25
+esx_datacenter: Datacenter
+esx_cluster: Cluster
