@@ -14,103 +14,70 @@
 #  limitations under the License.
 #
 ---
-- name: ---> OVFTOOL LOG FILE LOCATION <----
-  tags: debug
-  debug: msg="The ovftool log file is {{ chaperone_log_dir }}/{{ appliance_deployment_scheme }}_{{ appliance_networking_mode }}.log"
+# - name: ---> OVFTOOL LOG FILE LOCATION <----
+#   tags: debug
+#   debug: msg="The ovftool log file is {{ chaperone_log_dir }}/{{ appliance_deployment_scheme }}_{{ appliance_networking_mode }}.log"
 
-- name: Report the appliance deployment scheme and appliance networking scheme
-  tags: debug
-  debug: msg="Deploying {{ appliance_deployment_scheme }} appliance(s) using {{ appliance_networking_mode }}"
-
-- name: Set the generic facts when appliance_deployment_scheme is Combined or vCSA
-  tags:
-    - combined
-    - vcsa
-    - cleanup_combined
-    - cleanup_vcsa
+- name: Set the FQDN fact when deploying IB PSC
   set_fact:
-      appliance_dns_name: "{{ vcsa_appliance_dns_name }}"
-      appliance_vcenter_name: "{{ vcsa_appliance_vcenter_name }}"
-
-- name: Set the generic facts when appliance_deployment_scheme is psc
+      ib_psc_fqdn: "{{ ib_psc_appliance_name }}.{{ dns_domain_name }}"
   tags:
-    - psc
-    - cleanup_psc
+    - create_ib_psc_task
+
+- name: Set the FQDN fact when deploying OOB PSC
   set_fact:
-      appliance_dns_name: "{{ psc_appliance_dns_name }}"
-      appliance_vcenter_name: "{{ psc_appliance_vcenter_name }}"
-
-- name: Deploying the appliance (combined/DHCP)
+      oob_psc_fqdn: "{{ oob_psc_appliance_name }}.{{ dns_domain_name }}"
   tags:
-    - combined
-    - psc
-    - vcsa
-  include: "deploy/combined_DHCP.yml"
-  vars:
-    log_dir: "{{ chaperone_log_dir }}"
-  ignore_errors: True
-  wait_for: host="{{ appliance_dns_name }}" port=443 timeout=1800
-  when: appliance_deployment_scheme == "combined" and appliance_networking_mode == "DHCP"
+    - create_oob_psc_task
 
-- name: Deploying the appliance (combined/Static)
+- name: Set the FQDN fact when deploying IB vCenter
+  set_fact:
+      ib_vcenter_fqdn: "{{ ib_vcenter_appliance_name }}.{{ dns_domain_name }}"
   tags:
-    - combined
-    - psc
-    - vcsa
-  include: "deploy/combined_Static.yml"
-  vars:
-    log_dir: "{{ chaperone_log_dir }}"
-  ignore_errors: True
-  wait_for: host="{{ appliance_dns_name }}" port=443 timeout=1800
-  when: appliance_deployment_scheme == "combined" and appliance_networking_mode == "Static"
+    - create_ib_vcenter_task
+    - create_ib_vcenterpsc_task
 
-- name: Deploying the appliance (psc/DHCP)
+- name: Set the FQDN fact when deploying OOB vCenter
+  set_fact:
+      oob_vcenter_fqdn: "{{ oob_vcenter_appliance_name }}.{{ dns_domain_name }}"
   tags:
-    - combined
-    - psc
-    - vcsa
-  include: "deploy/psc_DHCP.yml"
-  vars:
-    log_dir: "{{ chaperone_log_dir }}"
-  ignore_errors: True
-  wait_for: host="{{ appliance_dns_name }}" port=443 timeout=1800
-  when: appliance_deployment_scheme == "psc" and appliance_networking_mode == "DHCP"
+    - create_oob_vcenter_task
+    - create_oob_vcenterpsc_task
 
-- name: Deploying the appliance (psc/Static)
+- name: Create a task from template to deploy an IB PSC
+  template: src=ib_psc_ovf_deploy.yml.j2 dest={{ vcsa_task_directory }}/deploy_app.yml
   tags:
-    - combined
-    - psc
-    - vcsa
-  include: "deploy/psc_Static.yml"
-  vars:
-    log_dir: "{{ chaperone_log_dir }}"
-  ignore_errors: True
-  wait_for: host="{{ appliance_dns_name }}" port=443 timeout=1800
-  when: appliance_deployment_scheme == "psc" and appliance_networking_mode == "Static"
+    - create_ib_psc_task
 
-- name: Deploying the appliance (psc/Static)
+- name: Create a task from template to deploy an OOB PSC
+  template: src=oob_psc_ovf_deploy.yml.j2 dest={{ vcsa_task_directory }}/deploy_app.yml
   tags:
-    - combined
-    - psc
-    - vcsa
-  include: "deploy/vcsa_DHCP.yml"
-  vars:
-    log_dir: "{{ chaperone_log_dir }}"
-  ignore_errors: True
-  wait_for: host="{{ appliance_dns_name }}" port=443 timeout=1800
-  when: appliance_deployment_scheme == "vcsa" and appliance_networking_mode == "DHCP"
+    - create_oob_psc_task
 
-- name: Deploying the appliance (vcsa/Static)
+- name: Create a task from template to deploy an IB vCenter
+  template: src=ib_vcenter_ovf_deploy.yml.j2 dest={{ vcsa_task_directory }}/deploy_app.yml
   tags:
-    - combined
-    - psc
-    - vcsa
-  include: "deploy/vcsa_Static.yml"
-  vars:
-    log_dir: "{{ chaperone_log_dir }}"
-  ignore_errors: True
-  wait_for: host="{{ appliance_dns_name }}" port=443 timeout=1800
-  when: appliance_deployment_scheme == "vcsa" and appliance_networking_mode == "Static"
+    - create_ib_vcenter_task
+
+- name: Create a task from template to deploy an OOB vCenter
+  template: src=oob_vcenter_ovf_deploy.yml.j2 dest={{ vcsa_task_directory }}/deploy_app.yml
+  tags:
+    - create_oob_vcenter_task
+
+- name: Create a task from template to deploy an OOB vCenter with embedded PSC
+  template: src=oob_vcenterpsc_ovf_deploy.yml.j2 dest={{ vcsa_task_directory }}/deploy_app.yml
+  tags:
+    - create_oob_vcenterpsc_task
+
+- name: Create a task from template to deploy an IB vCenter with embedded PSC
+  template: src=ib_vcenterpsc_ovf_deploy.yml.j2 dest={{ vcsa_task_directory }}/deploy_app.yml
+  tags:
+    - create_ib_vcenterpsc_task
+
+- name: Deploy the appliance
+  include: deploy_app.yml
+  tags:
+    - deploy_vcenter_psc_ova
 
 # The failed_when statement above should catch both soft failures (Monitor failed) and hard
 #  failures (return code > 1). If a failure occurs we need to cleanup the VM that is deployed
@@ -130,20 +97,23 @@
 
 # Unmount the ISO
 - name: Unmount ISO
-  tags: cleanup
   mount: src="{{ chaperone_vcsa_iso }}" name="{{ mount_dir_path }}" fstype=iso9660 state=unmounted
   become: True
+  tags:
+    - cleanup
 
 # Now that the ISO is unmounted we grab the existing metadata for the mount directory. Crude
-#  and needs to built with something more intelligence.
+# and needs to built with something more intelligence.
 - name: Retrieve info about the mount directory
-  tags: cleanup
   stat: path="{{ mount_dir_path }}"
   register: mount_dir_stat_unmounted
+  tags:
+    - cleanup
 
 # Destroy the mount directory
 - name: Destroy the temp mount directory
-  tags: cleanup
   file: path="{{ mount_dir_path }}" state=absent
   when: mount_dir_stat_unmounted.stat.wusr == True
   become: True
+  tags:
+    - cleanup

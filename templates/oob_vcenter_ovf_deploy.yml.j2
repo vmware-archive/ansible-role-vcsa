@@ -1,0 +1,56 @@
+---
+# Using the ovftool binary, deploys the required appliance(s)
+# The failed_when property is used to capture both soft failures ("Monitor failed:") and hard
+#  failures (return code > 0)
+- name: Deploy the out-of-band vCenter appliance
+  command: >
+    {{ ovftool }}
+    --sourceType=OVA
+    --acceptAllEulas
+    --allowExtraConfig
+    --noSSLVerify
+    --diskMode=thin
+    --skipManifestCheck
+    --X:injectOvfEnv
+    --powerOn
+    --X:httpTimeout='{{ ovftool_http_timeout }}'
+    --X:enableHiddenProperties
+    --X:connectionFileTransferRetryCount=3
+    "--X:monitorInstallFiles=file://{{ oob_vcenter_deploy_target_user_name }}:'{{ oob_vcenter_deploy_target_user_password }}'@/var/log/firstboot/rpmInstall.json, file://{{ oob_vcenter_deploy_target_user_name }}:'{{ oob_vcenter_deploy_target_user_password }}'@/var/log/firstboot/fbInstall.json"
+    --X:monitorOutputFile=/tmp/vcsa-cli-installer-progress-{{ 10000000 |random}}.json
+    --X:logFile={{ chaperone_log_directory }}/deploy_oob_vcenter_{{ network_ip_scheme }}.log
+    --X:logLevel=verbose
+    --X:logTransferHeaderData
+    --X:waitForIp
+    --prop:guestinfo.cis.appliance.root.shell=/bin/bash
+    --prop:guestinfo.cis.db.type=embedded
+    --diskMode=thin
+    --datastore='{{ oob_vcenter_esx_datastore }}'
+    --network='{{ oob_vcenter_esx_portgroup }}'
+    --prop:guestinfo.cis.vmdir.password='{{ sso_password }}'
+    --prop:guestinfo.cis.vmdir.site-name='{{ sso_site_name }}'
+    --prop:guestinfo.cis.vmdir.domain-name='{{ sso_domain_name }}'
+    --prop:guestinfo.cis.appliance.ssh.enabled='{{ ssh_enable }}'
+    --prop:guestinfo.cis.appliance.time.tools-sync='{{ time_tools_sync }}'
+    --prop:guestinfo.cis.appliance.net.addr.family='{{ ip_family }}'
+{% if appliance_networking_mode == "DHCP" %}
+    --name='{{ oob_vcenter_appliance_name }}'
+    --prop:guestinfo.cis.appliance.root.passwd='{{ oob_vcenter_admin_password }}'
+    --prop:guestinfo.cis.appliance.net.mode=dhcp
+{% elif appliance_networking_mode == "Static" %}
+    --name='{{ oob_vcenter_appliance_name }}'
+    --prop:guestinfo.cis.appliance.net.pnid='{{ oob_vcenter_fqdn }}'
+    --prop:guestinfo.cis.appliance.root.passwd='{{ oob_vcenter_admin_password }}'
+    --prop:guestinfo.cis.appliance.net.mode=static
+    --prop:guestinfo.cis.appliance.net.addr='{{ oob_vcenter_ip_address | ipaddr }}'
+    --prop:guestinfo.cis.appliance.net.prefix='{{ oob_vcenter_ip_netmask | ipaddr }}'
+    --prop:guestinfo.cis.appliance.net.gateway='{{ oob_vcenter_ip_gateway | ipaddr }}'
+    --prop:guestinfo.cis.appliance.net.dns.servers='{{ dns_server | ipaddr }}'
+{% endif %}
+    --prop:guestinfo.cis.system.vm0.hostname={{ psc_appliance_dns_name_manual }}
+    --deploymentOption='management-{{ appliance_deployment_option }}'
+    '{{ mount_dir_path }}/{{ vcsa_ova }}'
+    vi://{{ oob_vcenter_deploy_target_user_name | urlencode }}:'{{ oob_vcenter_deploy_target_user_password | urlencode }}'@{{ esx_hostname }}
+  register: deploy_ovf_cmd_result
+  ignore_errors: True
+  failed_when: "'Monitor failed:' in deploy_ovf_cmd_result.stdout or deploy_ovf_cmd_result.rc > 0"
