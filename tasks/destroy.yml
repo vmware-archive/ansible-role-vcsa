@@ -1,0 +1,50 @@
+#
+#  Copyright 2015 VMware, Inc.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#
+---
+- name: Create a task from template to destroy an IB PSC
+  template: src=ib_psc_destroy.yml.j2 dest={{ vcsa_task_directory }}/destroy_appliance.yml
+  tags:
+    - create_ib_psc_cleanup_task
+
+- name: Create a task from template to destroy an OOB PSC
+  template: src=oob_psc_destroy.yml.j2 dest={{ vcsa_task_directory }}/destroy_appliance.yml
+  tags:
+    - create_oob_psc_cleanup_task
+
+- name: Create a task from template to destroy an IB vCenter
+  template: src=ib_vcenter_destroy.yml.j2 dest={{ vcsa_task_directory }}/destroy_appliance.yml
+  tags:
+    - create_ib_vcenter_cleanup_task
+
+- name: Create a task from template to destroy an OOB vCenter
+  template: src=oob_vcenter_destroy.yml.j2 dest={{ vcsa_task_directory }}/destroy_appliance.yml
+  tags:
+    - create_oob_vcenter_cleanup_task
+
+- name: Create a task from template to destroy an IB vCenter with embedded PSC
+  template: src=ib_vcenterpsc_destroy.yml.j2 dest={{ vcsa_task_directory }}/destroy_appliance.yml
+  tags:
+    - create_ib_vcenterpsc_cleanup_task
+
+- name: Create a task from template to destroy an OOB vCenter with embedded PSC
+  template: src=oob_vcenterpsc_destroy.yml.j2 dest={{ vcsa_task_directory }}/destroy_appliance.yml
+  tags:
+    - create_oob_vcenterpsc_cleanup_task
+
+- name: Destroy the appliance
+  include: destroy_appliance.yml
+  tags:
+    - destroy_appliance
