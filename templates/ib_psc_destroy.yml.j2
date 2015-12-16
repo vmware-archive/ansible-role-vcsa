@@ -4,9 +4,9 @@
 - name: Destroying the appliance
   ignore_errors: True
   vsphere_guest:
-    vcenter_hostname: "{{ oob_vcenter_url }}"
-    username: "{{ oob_vcenter_user_name }}"
-    password: "{{ oob_vcenter_user_password }}"
+    vcenter_hostname: "{{ ib_psc_deploy_target_url }}"
+    username: "{{ ib_psc_deploy_target_user_name }}"
+    password: "{{ ib_psc_deploy_target_user_password }}"
     guest: "{{ ib_psc_appliance_name }}"
     state: absent
     force: yes

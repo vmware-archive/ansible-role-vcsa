@@ -16,7 +16,7 @@
     --X:httpTimeout='{{ ovftool_http_timeout }}'
     --X:enableHiddenProperties
     --X:connectionFileTransferRetryCount=3
-    "--X:monitorInstallFiles=file://{{ oob_vcenter_user_name }}:{{ oob_vcenter_user_password }}@/var/log/firstboot/rpmInstall.json, file://{{ oob_vcenter_user_name }}:{{ oob_vcenter_user_password }}@/var/log/firstboot/fbInstall.json"
+    "--X:monitorInstallFiles=file://{{ ib_vcenter_deploy_target_user_name }}:{{ ib_vcenter_deploy_target_user_password }}@/var/log/firstboot/rpmInstall.json, file://{{ ib_vcenter_deploy_target_user_name }}:{{ ib_vcenter_deploy_target_user_password }}@/var/log/firstboot/fbInstall.json"
     --X:monitorOutputFile=/tmp/vcsa-cli-installer-progress-{{ 10000000 |random}}.json
     --X:logFile={{ chaperone_log_directory }}/ib_vcenterpsc_{{ network_ip_scheme }}.log
     --X:logLevel=verbose
@@ -49,7 +49,7 @@
 {% endif %}
     --deploymentOption='{{ ib_vcenter_deployment_option }}'
     '{{ mount_dir_path }}/{{ vcsa_ova }}'
-    vi://'{{ oob_vcenter_user_name | urlencode }}':'{{ oob_vcenter_user_password | urlencode }}'@{{ oob_vcenter_url }}
+    vi://'{{ ib_vcenter_deploy_target_user_name | urlencode }}':'{{ ib_vcenter_deploy_target_user_password | urlencode }}'@{{ ib_vcenter_deploy_target_url }}
   register: deploy_ovf_cmd_result
   ignore_errors: True
   failed_when: "'Monitor failed:' in deploy_ovf_cmd_result.stdout or deploy_ovf_cmd_result.rc > 0"
