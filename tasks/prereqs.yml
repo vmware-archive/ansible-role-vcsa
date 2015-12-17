@@ -14,22 +14,6 @@
 #  limitations under the License.
 #
 ---
-- name: assure dnsmasq installed
-  sudo: yes
-  apt: pkg=python-netaddr state=present
-  tags:
-    - prereqs
-
-- name: Install pyvmomi
-  pip: name="pyvmomi" state=present version="{{ pyvmomi_version }}"
-  tags:
-    - prereqs
-
-- name: Install pysphere
-  pip: name="pysphere" state=present version="{{ pysphere_version }}"
-  tags:
-    - prereqs
-
 # We use a single directory to mount the vCSA ISO and we first need to determine whether the
 #  directory already exists
 - name: Retrieve info about the mount directory

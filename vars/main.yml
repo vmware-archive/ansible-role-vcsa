@@ -13,8 +13,3 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 #
----
-# pysphere is only used to delete the appliances - these calls should be
-# migrated to pyvmomi as pysphere is effectively dead
-pysphere_version: "0.1.7"
-pyvmomi_version: "5.5.0-2014.1.1"
