@@ -1,17 +1,22 @@
-vcsa
-=========
+# ansible-role-vcsa
 
-Deploys a VMware Platform Service Controller or vCenter Server Appliance using the ovftool
+Deploys a VMware Platform Service Controller or vCenter Server Appliance using
+the ovftool.
 
-Requirements
-------------
+# Requirements
 
-pyVmomi
-pysphere
+This role requires the following (Pip) modules.
 
-Role Variables
---------------
+- pyVmomi
+- pysphere
 
+# Role Variables
+
+This role is under heavy development, thus the variables may change often.
+At present, the following variables are setup via defaults/main.yml, or are
+otherwise required.
+
+```
 the_one_task_template
 the_one_task
 vcenter_host
@@ -51,13 +56,11 @@ iso
 ova
 mount_dir_path
 ovftool_http_timeout
+```
 
-Dependencies
-------------
+# Example Playbook
 
-Example Playbook
-----------------
-
+```yaml
 - name: Deploy a virtual machine via ovftool
   hosts: localhost
   gather_facts: false
@@ -66,11 +69,24 @@ Example Playbook
     - roles/vcsa/defaults/main.yml
   roles:
     - vcsa
+```
 
-License
--------
+# License and Copyright
 
+Copyright 2015 VMware, Inc.
 
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-Author Information
-------------------
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+## Author Information
+
+This role was created in 2015 by [Jake Dupuy / VMware](http://www.vmware.com/).

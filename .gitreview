@@ -1,0 +1,5 @@
+[gerrit]
+host=gerrit.eng.vmware.com
+port=29418
+project=ansible-role-vcsa
+defaultbranch=master
