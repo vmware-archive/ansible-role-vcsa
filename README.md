@@ -16,6 +16,12 @@ This role is under heavy development, thus the variables may change often.
 At present, the following variables are setup via defaults/main.yml, or are
 otherwise required.
 
+Note: A non-defaulted variable, download_site, must be set by a vars file
+or by other mechanism prior to calling this role. The download_site must
+provide a valid IP (or resolvable DNS name) and path to a directory thereunder
+from which the download files (e.g., ISO files or similar) may be obtained.
+See the defaults.main.yml for the files of interest.
+
 ```
 the_one_task_template
 the_one_task

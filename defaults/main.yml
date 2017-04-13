@@ -25,7 +25,7 @@ vcsa_ova: "vcsa/vmware-vcsa"
 mount_dir_path: "/tmp/vcsa-install"
 chaperone_vcsa_iso: "VMware-VCSA-all-6.0.0-3040890.iso"
 chaperone_vcsa_md5: "1652d41ae6837b23e177443640579274"
-chaperone_vcsa_url: "http://build-squid.eng.vmware.com/build/mts/release/bora-3040890/publish/VMware-VCSA-all-6.0.0-3040890.iso"
+chaperone_vcsa_url: "{{ download_site }}/VMware-VCSA-all-6.0.0-3040890.iso"
 ovftool_http_timeout: 25
 esx_datacenter: Datacenter
 esx_cluster: Cluster
