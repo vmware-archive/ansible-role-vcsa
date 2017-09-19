@@ -14,10 +14,128 @@
 #  limitations under the License.
 #
 ---
-appliance_thin_disk_mode: "true"
-ip_family: "ipv4"
+
+vcsa_destroy_applicance: False
+
+# will get set to 'esxi' or 'vc' by testing.
+# indicates the detected type of host we are trying to deploy to.
+vcsa_deploy_host_type: vc
+
+# older deploys use ovftool directly, new deploys use a cli-installer.
+# set this to 6.5 or greated to use the cli-installer
+vcsa_version: 6.0
+
+# FQDN or IP address of the vCenter Server instance or esxi server
+vcsa_host_address:
+
+# The user name of a user with administrative privileges or the
+# Single Sign-On administrator on vCenter or the esxi root user
+vcsa_host_user_name: root
+
+# The password of the host installing vcsa into
+vcsa_host_password: 'VMware1!'
+
+# what to name the vcsa vm
+vcsa_name: 'Default_VCSA_Name'
+
+# Only needed if doing a seperate psc installation
+vcsa_psc_name: 'Default_PSC_Name'
+
+# this is the target datacenter (or just datacenter).
+# only required for installing on vcenter
+vcsa_datacenter:
+  - "parent folder"
+  - "child folder"
+  - "Datacenter"
+
+# this is the target folder in the vcenter.
+# only required for installing on vcenter
+vcsa_vc_target:
+  - "parent folder"
+  - "child folder"
+  - "<ESXi host or DRS cluster>"
+
+# A specific ESXi host or DRS cluster datastore,
+# or a specific datastore in a datastore cluster or datastore in vcenter
+vcsa_datastore: 'datastore1'
+
+# Network to deploy the vcenter on
+vcsa_deployment_network: 'VM Network'
+
+vcsa_thin_disk_mode: "true"
+
+# vcsa_deployment_option must be one of the options listed in the first column
+# Options                     vCPUs Memory(GB) Storage(GB) Hosts(up to) VMs(up to)
+# --------------------------------------------------------------------------------
+# tiny                        2     10         250         10           100
+# tiny-lstorage               2     10         775         10           100
+# tiny-xlstorage              2     10         1650        10           100
+# small                       4     16         290         100          1000
+# small-lstorage              4     16         820         100          1000
+# small-xlstorage             4     16         1700        100          1000
+# medium                      8     24         425         400          4000
+# medium-lstorage             8     24         925         400          4000
+# medium-xlstorage            8     24         1805        400          4000
+# large                       16    32         640         1000         10000
+# large-lstorage              16    32         990         1000         10000
+# large-xlstorage             16    32         1870        1000         10000
+# xlarge                      24    48         980         2000         35000
+# xlarge-lstorage             24    48         1030        2000         35000
+# xlarge-xlstorage            24    48         1910        2000         35000
+vcsa_deployment_option: "tiny"
+
+
+vcsa_network_ip_family: 'ipv4'
+vcsa_network_mode: 'static'
+vcsa_network_ip: '192.168.1.4'
+vcsa_dns_servers:
+  - '8.8.8.8'
+  - '8.8.4.4'
+# Network prefix length. Use only when the mode is 'static'. Remove if the mode is 'dhcp'. This is the number of bits set in the subnet mask; for instance, if the subnet mask is 255.255.255.0, there are 24 bits in the binary version of the subnet mask, so the prefix length is 24. If used, the values must be in the inclusive range of 0 to 32 for IPv4 and 0 to 128 for IPv6.
+vcsa_network_prefix: 24
+# Gateway IP address. Remove this if using dhcp.
+vcsa_network_gateway: '192.168.1.254'
+# FQDN or IP address for the appliance. Remove this if using dhcp.
+vcsa_network_system_name: "{{ vcsa_network_ip }}"
+# Appliance root password; refer to --template-help for password policy.
+vcsa_os_password: "{{ vcsa_host_password }}"
+vcsa_ssh_enable: "false"
+
+# vCenter Single Sign-On administrator password; refer to --template-help for password policy. If left blank, or omitted, you will be prompted to enter it at the command console during template verification.
+vcsa_sso_password: "{{ vcsa_host_password }}"
+vcsa_sso_domain_name: "vsphere.local"
+# vCenter Single Sign-On site name
+vcsa_sso_site_name: "default_site_name"
+
+# Host name of the replication partner
+vcsa_sso_replication_partner_hostname:
+
+# FQDN of the Platform Services Controller
+vcsa_sso_platform_services_controller: vcsa.corp.local
+vcsa_sso_port: 443
+
+# VMware Customer Experience Improvement Program
+vcsa_ceip_enabled: "true"
+
+# vcsa_install_type must be one of
+# PSC_first_instance_on_ESXi
+# PSC_first_instance_on_VC
+# PSC_replication_on_ESXi
+# PSC_replication_on_VC
+# embedded_vCSA_on_ESXi
+# embedded_vCSA_on_VC
+# vCSA_on_ESXi
+# vCSA_on_VC
+
+vcsa_install_type: 'embedded_vCSA_on_ESXi'
+vcsa_deploy_json_tmpfile: "/tmp/deploy_appliance.json"
+
+vcsa_ignore_failure_to_destroy: True
+
+appliance_thin_disk_mode: "{{ vcsa_thin_disk_mode }}"
+ip_family: "{{ vcsa_network_ip_family }}"
 time_tools_sync: "true"
-ssh_enable: "true"
+ssh_enable: "{{ vcsa_ssh_enable }}"
 database_type: "embedded"
 ovftool: "/usr/local/bin/ovftool/ovftool"
 downloads_dir: "/var/www/html/downloads"
@@ -32,3 +150,8 @@ esx_cluster: Cluster
 vcsa_task_directory: "/opt/chaperone-ansible/roles/vcsa/tasks"
 chaperone_log_directory: "/var/log/chaperone"
 network_ip_scheme: Static
+
+vcsa_installer_required_packages: []
+
+# leftover 6.0 vars
+dns_domain_name: corp.local

@@ -14,43 +14,88 @@
 #  limitations under the License.
 #
 ---
-# We use a single directory to mount the vCSA ISO and we first need to determine whether the
-#  directory already exists
-- name: Retrieve info about the mount directory
-  stat: path="{{ mount_dir_path }}"
-  register: mount_dir_stat_first
-  tags:
-    - prereqs
+- name: vmware_guest module requires some pip packages
+  async: 300
+  poll: 0
+  pip:
+    name: "{{async_item}}"
+    state: "present"
+  with_items:
+    - pysphere
+    - pyVmomi
+  register: pip_results
+  changed_when: false
+  loop_control:
+    loop_var: "async_item"
 
-# If the mount directory doesn't already exist it is created
-- name: Create the mount directory
-  file: path="{{ mount_dir_path }}" state=directory mode=0755
-  when: mount_dir_stat_first.stat.exists == False
-  tags:
-    - prereqs
+- name: Include OS-specific variables
+  include_vars: "{{ ansible_os_family }}.yml"
+  when: ansible_os_family is defined
 
-# We run stat again to get info about the mount directory post-creation. This info will be used
-#  within when statements to make sure that the directory exists and isn't already being used.
-#  It's a crude check and I would like to devise a better method.
-- name: Retrieve info about the mount directory
-  stat: path="{{ mount_dir_path }}"
-  register: mount_dir_stat_created
-  tags:
-    - prereqs
+- name: Include variables for Mac platform
+  include_vars: "{{ ansible_distribution }}.yml"
+  when: ansible_distribution == 'MacOSX'
 
-# Mount the vCSA ISO to the mount directory WHEN the mount directory is RO. Crude check,
-#  need a more intelligent one.
-- name: Mount the ISO
-  command: /bin/mount -t iso9660 "{{ downloads_dir }}/{{ chaperone_vcsa_iso }}" "{{ mount_dir_path }}"
-  become: True
-  when: mount_dir_stat_created.stat.wusr == True
-  tags:
-    - prereqs
+- name: Include variables for Linux/Windows platform
+  include_vars: "{{ ansible_system }}.yml"
+  when: ansible_system is defined
 
-# Run stat for third time to retrieve the metadata on the directory
-- name: Update the info on the mounted directory
-  stat: path="{{ mount_dir_path }}"
-  register: mount_dir_stat_mounted
-  failed_when: mount_dir_stat_mounted.stat.wusr != False
-  tags:
-    - prereqs
+- name: Ensure needed packages are installed
+  package:
+    name: "{{ item }}"
+    state: "present"
+  with_items: "{{ vcsa_installer_required_packages }}"
+
+- block:
+    - name: Assert that deploy host exists
+      assert:
+        that:
+          - "vcsa_host_address is defined"
+        msg: "vcsa_host_address must be defined as the ip or fqdn of the esxi or vcenter to which the ova will deploy"
+
+    - name: Check the UI
+      uri:
+        url: https://{{ vcsa_host_address }}/ui
+        validate_certs: False
+        follow_redirects: True
+        method: GET
+        return_content: yes
+      register: ui
+      failed_when: ui.content is not defined
+
+    - name: Record this is a deploy to ESXi
+      set_fact:
+        vcsa_deploy_host_type: esxi
+      when: "'esxUi' in ui.content"
+
+    - name: Assert using a valid deploy type against host type
+      assert:
+        that:
+          - "vcsa_deploy_host_type|lower in vcsa_install_type|lower"
+        msg: "Deploy on host type {{ vcsa_deploy_host_type }} is not valid with vcsa_install_type == {{ vcsa_install_type }}"
+
+    - name: Check existance of vcsa ISO file
+      stat:
+        path: "{{ downloads_dir }}/{{ chaperone_vcsa_iso }}"
+        get_checksum: no
+        get_md5: no
+        get_mime: no
+        get_attributes: no
+      register: iso_file
+
+    - name: "Assert the iso exists"
+      assert:
+        that:
+          - "iso_file.stat.exists and iso_file.stat.exists"
+        msg: "The ISO for the VCSA must be exist on the host running the deploy"
+
+    - name: Mount the ISO
+      mount:
+        path: "{{ mount_dir_path }}"
+        src: "{{ downloads_dir }}/{{ chaperone_vcsa_iso }}"
+        fstype: iso9660
+        opts: ro
+        state: mounted
+      changed_when: false
+
+  when: not vcsa_destroy_applicance

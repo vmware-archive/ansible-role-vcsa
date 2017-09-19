@@ -1,0 +1,64 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+
+lint:
+  name: yamllint
+platforms:
+  - name: photon
+    groups:
+      - deployer
+      - vcenter
+    image: "photon:latest"
+    privileged: true
+    command: /usr/lib/systemd/systemd
+    volumes:
+      - /Users/tscanlan/Downloads/VMware-VCSA-all-6.5.0-5973321.iso:/vcsa.iso:ro
+
+  - name: centos-7
+    groups:
+      - deployer
+      - vcenter
+    image: centos:7
+    privileged: true
+    command: /usr/lib/systemd/systemd
+    volumes:
+      - /Users/tscanlan/Downloads/VMware-VCSA-all-6.5.0-5973321.iso:/vcsa.iso:ro
+
+  - name: ubuntu-xenial
+    groups:
+      - deployer
+      - vcenter
+    image: ubuntu:16.04
+    privileged: true
+    command: /lib/systemd/systemd
+    volumes:
+      - /Users/tscanlan/Downloads/VMware-VCSA-all-6.5.0-5973321.iso:/vcsa.iso:ro
+
+  - name: ubuntu-precise
+    groups:
+      - deployer
+      - vcenter
+    image: ubuntu:12.04
+    command: /sbin/init
+    privileged: true
+    volumes:
+      - /Users/tscanlan/Downloads/VMware-VCSA-all-6.5.0-5973321.iso:/vcsa.iso:ro
+
+provisioner:
+  name: ansible
+  inventory:
+    links:
+      group_vars: ../../inventory/group_vars/
+      host_vars: ../../inventory/host_vars/
+  lint:
+    name: ansible-lint
+scenario:
+  name: install-6.5-on-vcenter
+verifier:
+  name: testinfra
+  enabled: false
+  lint:
+    name: flake8

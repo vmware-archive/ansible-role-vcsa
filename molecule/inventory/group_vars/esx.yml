@@ -1,0 +1,7 @@
+---
+# ESXi related
+vcsa_host_address: 172.16.78.161
+vcsa_network_ip: 172.16.78.10
+vcsa_network_gateway: 172.16.78.2
+vcsa_host_user_name: root
+vcsa_host_password: 'VMware1!'

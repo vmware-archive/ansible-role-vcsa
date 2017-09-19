@@ -14,25 +14,14 @@
 #  limitations under the License.
 #
 ---
-# Unmount the ISO
 - name: Unmount ISO
-  mount: src="{{ chaperone_vcsa_iso }}" name="{{ mount_dir_path }}" fstype=iso9660 state=unmounted
-  become: True
-  tags:
-    - cleanup
+  mount:
+    src: "{{ downloads_dir }}/{{ chaperone_vcsa_iso }}"
+    name: "{{ mount_dir_path }}"
+    fstype: iso9660
+    state: unmounted
+  changed_when: false
 
-# Now that the ISO is unmounted we grab the existing metadata for the mount directory. Crude
-# and needs to built with something more intelligence.
-- name: Retrieve info about the mount directory
-  stat: path="{{ mount_dir_path }}"
-  register: mount_dir_stat_unmounted
-  tags:
-    - cleanup
-
-# Destroy the mount directory
 - name: Destroy the temp mount directory
   file: path="{{ mount_dir_path }}" state=absent
-  when: mount_dir_stat_unmounted.stat.wusr == True
-  become: True
-  tags:
-    - cleanup
+  changed_when: false

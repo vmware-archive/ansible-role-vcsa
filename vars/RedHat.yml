@@ -1,0 +1,4 @@
+---
+vcsa_installer_required_packages:
+  - which
+  - coreutils
