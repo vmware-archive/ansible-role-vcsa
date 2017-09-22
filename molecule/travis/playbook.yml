@@ -1,0 +1,7 @@
+---
+- name: testing in travis
+  hosts: all
+  vars:
+      vcsa_destroy_applicance: True
+  roles:
+      - role: ansible-role-vcsa

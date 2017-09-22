@@ -1,0 +1,49 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+
+lint:
+  name: yamllint
+platforms:
+  - name: photon
+    groups:
+      - deployer
+      - vcenter
+    image: "photon:latest"
+
+  - name: centos-7
+    groups:
+      - deployer
+      - vcenter
+    image: centos:7
+
+  - name: ubuntu-xenial
+    groups:
+      - deployer
+      - vcenter
+    image: ubuntu:16.04
+
+  - name: ubuntu-precise
+    groups:
+      - deployer
+      - vcenter
+    image: ubuntu:12.04
+
+provisioner:
+  name: ansible
+  inventory:
+    links:
+      group_vars: ../../inventory/group_vars/
+      host_vars: ../../inventory/host_vars/
+
+  lint:
+    name: ansible-lint
+scenario:
+  name: z-destroy-on-vcenter
+verifier:
+  name: testinfra
+  enabled: false
+  lint:
+    name: flake8

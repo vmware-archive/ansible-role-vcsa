@@ -1,0 +1,40 @@
+#
+#  Copyright 2017 VMware, Inc.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#
+---
+
+- name: Create deploy json
+  template:
+    src: "{{ vcsa_version }}/{{ vcsa_install_type }}.json.j2"
+    dest: "{{ vcsa_deploy_json_tmpfile }}"
+
+- name: Run the 6.5 vcsa-cli-installer
+  shell: "{{mount_dir_path}}/vcsa-cli-installer/{{ vcsa_platform }}/vcsa-deploy install --verbose --accept-eula --acknowledge-ceip --no-esx-ssl-verify {{ vcsa_deploy_json_tmpfile }}"
+  async: 3000
+  poll: 15
+  register: vcsa_install_job
+  ignore_errors: True
+  failed_when: False
+  changed_when: False
+
+# Duplicate name may happen in tests when we are trying to install
+- name: fail and show error if fail isn't due to duplicate name
+  fail:
+    msg: "{{ vcsa_install_job.stderr }}"
+  when:
+    - vcsa_install_job|failed
+    - vcsa_install_job.stderr is defined
+    - "'Duplicate name'|lower not in vcsa_install_job.stderr|lower"
+    - "'already exists' not in vcsa_install_job.stderr|lower"

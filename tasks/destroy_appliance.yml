@@ -1,0 +1,50 @@
+#
+#  Copyright 2017 VMware, Inc.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#
+---
+- name: Ensure pip packages have finished
+  async_status:
+    jid: "{{ pip_result_item.ansible_job_id }}"
+  with_items: "{{ pip_results.results }}"
+  loop_control:
+    loop_var: "pip_result_item"
+  register: pip_poll_results
+  until: pip_poll_results.finished
+  retries: 60
+
+- name: Destroying the appliance
+  vsphere_guest:
+    vcenter_hostname: "{{ vcsa_host_address }}"
+    username: "{{ vcsa_host_user_name }}"
+    password: "{{ vcsa_host_password }}"
+    guest: "{{ vcsa_name }}"
+    state: absent
+    force: yes
+    validate_certs: False
+  ignore_errors: "{{ vcsa_ignore_failure_to_destroy }}"
+  failed_when: False
+  changed_when: False
+  register: vcsa_destroy_job
+  when: vcsa_destroy_applicance
+
+# Duplicate calls to delete running at the same time may return these errors
+- name: fail and show error if fail isn't due to already being deleted
+  fail:
+    msg: "{{ vcsa_destroy_job.stderr }}"
+  when:
+    - vcsa_destroy_job|failed
+    - vcsa_destroy_job.stderr is defined
+    - "'already been deleted' not in vcsa_destroy_job.stderr|lower"
+    - "'failed to shutdown vm' not in vcsa_destroy_job.stderr|lower"

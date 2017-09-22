@@ -14,7 +14,28 @@
 #  limitations under the License.
 #
 ---
-- include: prereqs.yml
-- include: deploy.yml
-- include: destroy.yml
-- include: cleanup.yml
+# - name: Dump all vars
+#   action: template src=templates/dumpall.j2 dest=/tmp/ansible.all
+
+- name: Run Pre-Reqs
+  include_tasks: prereqs.yml
+
+- block:
+
+    - block:
+        - name: Run Deploy for 6.0 and older
+          include_tasks: deploy.yml
+      when: vcsa_version <= 6.0
+
+    - block:
+        - name: Run Deploy for 6.5 and up
+          include_tasks: install-6.5.yml
+      when: vcsa_version > 6.0
+
+  when: not vcsa_destroy_applicance
+
+- name: Destroy Appliance
+  include_tasks: destroy_appliance.yml
+
+- name: Clean up when done
+  include_tasks: cleanup.yml

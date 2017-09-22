@@ -1,0 +1,13 @@
+---
+# vCenter related vars
+vcsa_host_address: 192.168.1.200
+vcsa_network_ip: 192.168.1.201
+vcsa_network_gateway: 192.168.1.254
+
+vcsa_host_user_name: "administrator@vsphere.local"
+vcsa_host_password: 'VMware1!'
+vcsa_datacenter:
+  - "Goddard"
+vcsa_vc_target:
+  - "Home"
+  - "192.168.1.5"

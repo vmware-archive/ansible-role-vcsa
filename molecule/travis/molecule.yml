@@ -1,0 +1,32 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+
+lint:
+  name: yamllint
+platforms:
+  - name: photon
+    groups:
+      - deployer
+      - esx
+    image: "photon:latest"
+
+provisioner:
+  name: ansible
+  lint:
+    name: ansible-lint
+scenario:
+  name: travis
+  test_sequence:
+    - dependency
+    - lint
+    - verify
+    - syntax
+
+verifier:
+  name: testinfra
+  enabled: false
+  lint:
+    name: flake8

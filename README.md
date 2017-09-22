@@ -1,20 +1,28 @@
 # ansible-role-vcsa
 
-Deploys a VMware Platform Service Controller or vCenter Server Appliance using
-the ovftool.
+Deploys a VMware Platform Service Controller or vCenter Server Appliance (vcsa).
+The PSC or vCSA is deployed is deployed into an ESXi host or vCenter Server
+ referenced
+using vars below.  The general use case would be to apply this role to a single host
+that can reach the host the  vm will be deployed into.
+
+*Hereafter either ESXi or vCenter Server will be called the **"host endpoint"***
+
+*Hereafter either PSC or vCSA will be called the **"ova"***
 
 # Requirements
 
-This role requires the following (Pip) modules.
-
-- pyVmomi
-- pysphere
+* This role requires the molecule pip module (for testing only).
+* To install the ova, you must have downloaded the vcsa ISO
+ from vmware.com beforehand.  This ISO contains the **ova** we will deploy to the **host endpoint**
+* The role must be run against a host with access to the **host endpoint**
 
 # Role Variables
 
-This role is under heavy development, thus the variables may change often.
-At present, the following variables are setup via defaults/main.yml, or are
-otherwise required.
+The following variables are required, but may have valid 
+defaults in set in `defaults/main.yml`.
+
+
 
 Note: A non-defaulted variable, download_site, must be set by a vars file
 or by other mechanism prior to calling this role. The download_site must

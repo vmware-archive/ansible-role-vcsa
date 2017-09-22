@@ -1,0 +1,72 @@
+{
+    "__version": "2.3.0",
+    "__comments": "Sample template to deploy a Platform Services Controller appliance as the first instance in a new vCenter Single Sign-On domain on an ESXi host.",
+    "new.vcsa": {
+        "esxi": {
+            "hostname": "{{ vcsa_host_address }}",
+            "username": "{{ vcsa_host_user_name }}",
+            "password": "{{ vcsa_host_password }}",
+            "deployment.network": "{{ vcsa_deployment_network }}",
+            "datastore": "{{ vcsa_datastore }}"
+        },
+        "appliance": {
+            "thin.disk.mode": {{ vcsa_thin_disk_mode }},
+            "deployment.option": "{{ vcsa_deployment_option }}",
+            "name": "{{ vcsa_psc_name }}"
+        },
+        "network": {
+            "ip.family": "{{ vcsa_network_ip_family }}",
+            "mode": "{{ vcsa_network_mode }}",
+            "ip": "{{ vcsa_network_ip }}",
+            "dns.servers": [
+{% set comma = joiner(",") %}
+{% for dns in vcsa_dns_servers %}
+              {{ comma() }}"{{ dns }}"
+{% endfor %}
+            ],
+            "prefix": "{{ vcsa_network_prefix }}",
+            "gateway": "{{ vcsa_network_gateway }}",
+            "system.name": "{{ vcsa_network_system_name }}"
+        },
+        "os": {
+            "password": "{{ vcsa_os_password }}",
+            "ssh.enable": {{ vcsa_ssh_enable }}
+        },
+        "sso": {
+            "password": "{{ vcsa_sso_password }}",
+            "domain-name": "{{ vcsa_sso_domain_name }}",
+            "site-name": "{{ vcsa_sso_site_name }}"
+        }
+    },
+    "ceip": {
+        "description": {
+            "__comments": [
+                "++++VMware Customer Experience Improvement Program (CEIP)++++",
+                "VMware's Customer Experience Improvement Program (CEIP) ",
+                "provides VMware with information that enables VMware to ",
+                "improve its products and services, to fix problems, ",
+                "and to advise you on how best to deploy and use our ",
+                "products. As part of CEIP, VMware collects technical ",
+                "information about your organization's use of VMware ",
+                "products and services on a regular basis in association ",
+                "with your organization's VMware license key(s). This ",
+                "information does not personally identify any individual. ",
+                "",
+                "Additional information regarding the data collected ",
+                "through CEIP and the purposes for which it is used by ",
+                "VMware is set forth in the Trust & Assurance Center at ",
+                "http://www.vmware.com/trustvmware/ceip.html . If you ",
+                "prefer not to participate in VMware's CEIP for this ",
+                "product, you should disable CEIP by setting ",
+                "'ceip.enabled': false. You may join or leave VMware's ",
+                "CEIP for this product at any time. Please confirm your ",
+                "acknowledgement by passing in the parameter ",
+                "--acknowledge-ceip in the command line.",
+                "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+            ]
+        },
+        "settings": {
+            "ceip.enabled": {{ vcsa_ceip_enabled }}
+        }
+    }
+}

@@ -1,0 +1,31 @@
+# Molecule managed
+
+---
+all:
+  hosts:
+    centos-7: &id001
+      ansible_connection: docker
+    photon: &id002
+      ansible_connection: docker
+    ubuntu-precise: &id003
+      ansible_connection: docker
+    ubuntu-xenial: &id004
+      ansible_connection: docker
+deployer:
+  hosts:
+    centos-7:
+      ansible_connection: docker
+    photon:
+      ansible_connection: docker
+    ubuntu-precise:
+      ansible_connection: docker
+    ubuntu-xenial:
+      ansible_connection: docker
+esx:
+  hosts:
+    centos-7: *id001
+    photon: *id002
+    ubuntu-precise: *id003
+    ubuntu-xenial: *id004
+ungrouped:
+  vars: {}

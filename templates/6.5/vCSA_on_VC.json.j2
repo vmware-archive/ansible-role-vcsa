@@ -1,0 +1,54 @@
+{
+    "__version": "2.3.0",
+    "__comments": "Sample template to deploy a vCenter Server Appliance with an external Platform Services Controller on a vCenter Server instance.",
+    "new.vcsa": {
+        "vc": {
+            "hostname": "{{ vcsa_host_address }}",
+            "username": "{{ vcsa_host_user_name }}",
+            "password": "{{ vcsa_host_password }}",
+            "deployment.network": "{{ vcsa_deployment_network }}",
+            "datacenter": [
+{% set comma = joiner(",") %}
+{% for dc in vcsa_datacenter %}
+              {{ comma() }}"{{ dc }}"
+{% endfor %}
+            ],
+            "datastore": "{{ vcsa_datastore }}",
+            "target": [
+{% set comma = joiner(",") %}
+{% for target in vcsa_vc_target %}
+              {{ comma() }}"{{ target }}"
+{% endfor %}
+            ]
+        },
+        "appliance": {
+            "thin.disk.mode": {{ vcsa_thin_disk_mode }},
+            "deployment.option": "{{ vcsa_deployment_option }}",
+            "name": "{{ vcsa_name }}"
+        },
+        "network": {
+            "ip.family": "{{ vcsa_network_ip_family }}",
+            "mode": "{{ vcsa_network_mode }}",
+            "ip": "{{ vcsa_network_ip }}",
+            "dns.servers": [
+{% set comma = joiner(",") %}
+{% for dns in vcsa_dns_servers %}
+              {{ comma() }}"{{ dns }}"
+{% endfor %}
+            ],
+            "prefix": "{{ vcsa_network_prefix }}",
+            "gateway": "{{ vcsa_network_gateway }}",
+            "system.name": "{{ vcsa_network_system_name }}"
+        },
+        "os": {
+            "password": "{{ vcsa_os_password }}",
+            "ssh.enable": {{ vcsa_ssh_enable }}
+        },
+        "sso": {
+            "password": "{{ vcsa_sso_password }}",
+            "domain-name": "{{ vcsa_sso_domain_name }}",
+            "platform.services.controller": "{{ vcsa_sso_platform_services_controller }}",
+            "sso.port": {{ vcsa_sso_port }}
+        }
+    }
+}

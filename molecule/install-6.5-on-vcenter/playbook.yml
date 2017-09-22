@@ -1,0 +1,16 @@
+---
+- name: Install VCSA on vcenter
+  hosts: all
+
+  # To limit RAM use in destination host, use the serial setting.
+  # It will allow only "n" at a time.  As we are using the same
+  # vcsa name for each, the late versions will fail to install
+  # with a duplicate error.
+  # serial: 1
+
+  vars:
+    vcsa_version: 6.5
+    vcsa_install_type: 'embedded_vCSA_on_VC'
+
+  roles:
+    - role: vcsa

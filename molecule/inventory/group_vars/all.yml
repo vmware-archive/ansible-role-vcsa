@@ -1,0 +1,9 @@
+---
+# common to all tests
+
+# expect that we have pre-copied or mounted the iso
+chaperone_vcsa_iso: vcsa.iso
+downloads_dir: /
+
+vcsa_name: testing-vCenter-Server-Appliance
+vcsa_host_password: 'VMware1!'
