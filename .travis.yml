@@ -1,0 +1,15 @@
+# Copyright © 2017 VMware, Inc. All Rights Reserved.
+---
+sudo: required
+language: python
+cache: pip
+services:
+  - docker
+install:
+  - pip install molecule
+  - pip install docker
+script:
+  - molecule test -s travis
+
+notifications:
+  webhooks: https://galaxy.ansible.com/api/v1/notifications/
